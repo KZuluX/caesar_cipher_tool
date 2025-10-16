@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Caesar Cipher Tool</title>
+
+<!-- Google font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg1: #0f1724;
+    --bg2: #071022;
+    --card: rgba(255,255,255,0.04);
+    --accent: #7afcff;
+    --accent-2: #60ff8d;
+    --muted: rgba(255,255,255,0.35);
+    --glass: rgba(255,255,255,0.03);
+    --success: #7ef2a8;
+    --danger: #ff7b9c;
+    --mono: "JetBrains Mono", monospace;
+    --ui: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    min-height:100%;
+    background: radial-gradient(1200px 600px at 10% 10%, rgba(106,90,255,0.06), transparent 5%),
+                radial-gradient(900px 500px at 90% 90%, rgba(0,255,200,0.03), transparent 5%),
+                linear-gradient(180deg, var(--bg1), var(--bg2));
+    font-family:var(--ui);
+    color: #e6f7ff;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    padding:28px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:20px;
+  }
+
+  .app {
+    width:100%;
+    max-width:980px;
+    display:grid;
+    grid-template-columns: 1fr 420px;
+    gap:28px;
+    align-items:start;
+  }
+
+  /* left panel — main interactive card */
+  .panel {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.04);
+    padding:20px;
+    border-radius:14px;
+    box-shadow: 0 10px 40px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+    backdrop-filter: blur(6px) saturate(120%);
+  }
+
+  header.app-header{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-bottom:12px;
+  }
+  .logo {
+    width:52px;
+    height:52px;
+    border-radius:10px;
+    background: linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#012;
+    font-weight:800;
+    font-family:var(--mono);
+    box-shadow: 0 6px 18px rgba(60,255,200,0.06), 0 1px 0 rgba(255,255,255,0.06) inset;
+  }
+
+  .title {
+    line-height:1;
+  }
+  .title h1{
+    font-size:18px;
+    margin:0;
+  }
+  .title p { margin:0; color:var(--muted); font-size:13px; }
+
+  /* controls */
+  .controls {
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin:14px 0 18px;
+    flex-wrap:wrap;
+  }
+
+  textarea#inputText{
+    width:100%;
+    min-height:180px;
+    resize:vertical;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px dashed rgba(255,255,255,0.04);
+    background: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(255,255,255,0.01));
+    color:#eafff1;
+    font-family:var(--mono);
+    font-size:13px;
+  }
+
+  .row {
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .input-inline {
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+
+  input[type="number"]{
+    width:90px;
+    padding:8px 10px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.03);
+    background:var(--glass);
+    color:#eafff1;
+    font-family:var(--mono);
+    font-weight:600;
+  }
+
+  .btn {
+    padding:10px 14px;
+    border-radius:10px;
+    border: none;
+    cursor:pointer;
+    font-weight:700;
+    letter-spacing:0.3px;
+    font-family:var(--ui);
+  }
+
+  .btn-primary{
+    background: linear-gradient(90deg,var(--accent),var(--accent-2));
+    color:#022;
+    box-shadow: 0 8px 20px rgba(96,255,141,0.06);
+  }
+  .btn-ghost{
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid rgba(122,252,255,0.12);
+  }
+
+  .btn-small { padding:8px 10px; border-radius:8px; font-size:13px;}
+  .spacer {flex:1}
+
+  /* right panel — preview */
+  .preview {
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .card {
+    padding:14px;
+    border-radius:12px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));
+    border:1px solid rgba(255,255,255,0.03);
+    min-height:80px;
+  }
+  .label {font-size:12px;color:var(--muted); margin-bottom:8px;}
+  .output-area {
+    font-family:var(--mono);
+    font-size:13px;
+    color:#e6ffef;
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+
+  .small-mute { font-size:12px;color:var(--muted) }
+
+  .actions { display:flex; gap:8px; margin-top:8px; flex-wrap:wrap }
+  .copy-btn {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.03);
+    color:var(--accent);
+    padding:8px 10px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+  }
+
+  footer.notes {
+    margin-top:10px;
+    color:var(--muted);
+    font-size:12px;
+  }
+
+  /* nice little helper styles */
+  .kbd {
+    background: rgba(255,255,255,0.03);
+    padding:4px 7px;
+    border-radius:6px;
+    font-family:var(--mono);
+    font-size:12px;
+    border:1px solid rgba(255,255,255,0.02);
+  }
+
+  @media (max-width:980px){
+    .app { grid-template-columns: 1fr; padding: 8px; }
+    .preview { order: -1 }
+  }
+</style>
+</head>
+<body>
+  <main class="app" role="main" aria-label="Caesar cipher tool">
+    <section class="panel" aria-live="polite">
+      <header class="app-header">
+        <div class="logo" aria-hidden="true">C</div>
+        <div class="title">
+          <h1>Caesar Cipher Tool</h1>
+          <p>Encrypt · Decrypt · Brute-force · Copy · Download</p>
+        </div>
+        <div class="spacer"></div>
+        <div class="small-mute">Shortcut: <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> to Execute</div>
+      </header>
+
+      <textarea id="inputText" placeholder="Paste or type text here (supports multiple lines)."></textarea>
+
+      <div class="controls" role="region" aria-label="controls">
+        <div class="input-inline">
+          <label for="shift" class="small-mute" style="margin-right:6px">Shift</label>
+          <input id="shift" type="number" min="0" max="25" value="3" aria-label="Shift key (0-25)">
+        </div>
+
+        <button class="btn btn-primary" id="encryptBtn" title="Encrypt (Ctrl+Enter)">Encrypt</button>
+        <button class="btn btn-ghost" id="decryptBtn" title="Decrypt (Ctrl+Shift+Enter)">Decrypt</button>
+        <button class="btn" id="bruteBtn" style="background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.03);">Brute Force</button>
+
+        <div class="spacer"></div>
+
+        <button class="btn btn-small" id="copyInput" title="Copy input">Copy Input</button>
+        <button class="btn btn-small" id="clearBtn" title="Clear all">Clear</button>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="small-mute">Mode:</div>
+        <div id="modeBadge" class="kbd">Idle</div>
+        <div style="flex:1"></div>
+        <div class="small-mute">Confidence: <span id="confPercent">—</span></div>
+      </div>
+
+      <footer class="notes">
+        <div>Works with uppercase & lowercase letters and preserves non-letter characters. Use brute force if you don't know the key.</div>
+      </footer>
+    </section>
+
+    <aside class="preview">
+      <div class="card" aria-live="polite">
+        <div class="label">Output</div>
+        <div id="output" class="output-area">Your output appears here after an operation.</div>
+
+        <div class="actions">
+          <button class="copy-btn" id="copyBtn" aria-label="Copy output">Copy Result</button>
+          <button class="copy-btn" id="downloadBtn" aria-label="Download output">Download .txt</button>
+          <button class="copy-btn" id="autoDetect" title="Auto-detect best ROT">Auto-detect</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="label">Brute Force Preview</div>
+        <div id="brutePreview" class="output-area" style="max-height:220px;overflow:auto">Use the Brute Force button to list all 25 candidate shifts.</div>
+      </div>
+    </aside>
+  </main>
+
+<script>
+(function(){
+  // utilities
+  const $ = id => document.getElementById(id);
+  const input = $('inputText') || document.querySelector('#inputText') || document.querySelector('textarea#inputText');
+  const shiftInput = $('shift');
+  const out = $('output');
+  const modeBadge = $('modeBadge');
+  const brutePreview = $('brutePreview');
+  const confPercent = $('confPercent');
+
+  // Caesar transform (preserves case and non-letters)
+  function caesarShift(text, shift){
+    // ensure numeric within -25..25
+    const s = (Number(shift)||0) % 26;
+    return text.replace(/[a-z]/gi, ch => {
+      const base = (ch >= 'A' && ch <= 'Z') ? 65 : 97;
+      return String.fromCharCode((ch.charCodeAt(0) - base + s + 26) % 26 + base);
+    });
+  }
+
+  // simple English scoring (chi-squared like small heuristic)
+  const EN_FREQ = { A:0.08167,B:0.01492,C:0.02782,D:0.04253,E:0.12702,F:0.02228,G:0.02015,H:0.06094,I:0.06966,J:0.00153,K:0.00772,L:0.04025,M:0.02406,N:0.06749,O:0.07507,P:0.01929,Q:0.00095,R:0.05987,S:0.06327,T:0.09056,U:0.02758,V:0.00978,W:0.0236,X:0.00150,Y:0.01974,Z:0.00074 };
+
+  function chiScore(text){
+    const clean = (text||'').toUpperCase().replace(/[^A-Z]/g,'');
+    if (!clean.length) return -Infinity;
+    const N = clean.length;
+    const counts = {};
+    for (let ch of clean) counts[ch] = (counts[ch]||0)+1;
+    let chi = 0;
+    for (let c=65;c<=90;c++){
+      const letter = String.fromCharCode(c);
+      const obs = counts[letter]||0;
+      const exp = (EN_FREQ[letter]||0) * N;
+      const diff = obs - exp;
+      chi += (diff*diff) / (exp || 1);
+    }
+    return -chi; // more positive = better fit
+  }
+
+  // operations
+  function doEncrypt(){ 
+    const txt = input.value;
+    const s = Number(shiftInput.value)||0;
+    out.textContent = caesarShift(txt, s);
+    modeBadge.textContent = 'Encrypted';
+    confPercent.textContent = '—';
+  }
+  function doDecrypt(){
+    const txt = input.value;
+    const s = Number(shiftInput.value)||0;
+    out.textContent = caesarShift(txt, -s);
+    modeBadge.textContent = 'Decrypted';
+    confPercent.textContent = '—';
+  }
+
+  function doBrute(){
+    const txt = input.value;
+    if (!txt.trim()) { out.textContent = 'Enter ciphertext first.'; return; }
+    let res = '';
+    let best = {score:-Infinity, shift:0, text:''};
+    for (let s=1;s<26;s++){
+      const cand = caesarShift(txt, -s);
+      const sc = chiScore(cand);
+      if (sc > best.score) best = {score:sc, shift:s, text:cand};
+      res += `Shift ${s.toString().padStart(2,' ')}: ${cand}\n`;
+    }
+    brutePreview.textContent = res;
+    out.textContent = best.text;
+    modeBadge.textContent = `Brute (best: ${best.shift})`;
+    confPercent.textContent = Math.round(((-best.score)/100)*100) + '%';
+  }
+
+  function autoDetect(){
+    // tries all shifts and picks highest chiScore candidate
+    const txt = input.value;
+    if (!txt.trim()) { out.textContent = 'Enter ciphertext first.'; return; }
+    let best = {score:-Infinity, shift:0, text:''};
+    for (let s=0;s<26;s++){
+      const cand = caesarShift(txt, -s);
+      const sc = chiScore(cand);
+      if (sc>best.score) best = {score:sc, shift:s, text:cand};
+    }
+    out.textContent = best.text;
+    modeBadge.textContent = `Auto (${best.shift})`;
+    confPercent.textContent = Math.max(0, Math.min(100, Math.round((-best.score/100)*100))) + '%';
+  }
+
+  function copyOut(){
+    navigator.clipboard?.writeText(out.textContent).then(()=>{
+      flashTemp('Copied!', 1000);
+    }).catch(()=>{ alert('Copy failed — your browser may block clipboard access.'); });
+  }
+
+  function copyInput(){
+    navigator.clipboard?.writeText(input.value).then(()=> flashTemp('Input copied',900)).catch(()=> alert('Copy failed'));
+  }
+
+  function downloadTxt(){
+    const blob = new Blob([out.textContent || ''], {type:'text/plain;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'caesar_result.txt';
+    document.body.appendChild(a); a.click();
+    a.remove(); URL.revokeObjectURL(url);
+  }
+
+  // tiny UI helpers
+  function flashTemp(msg, ms=800){
+    const prev = modeBadge.textContent;
+    modeBadge.textContent = msg;
+    setTimeout(()=> modeBadge.textContent = prev, ms);
+  }
+
+  function clearAll(){
+    input.value = '';
+    out.textContent = 'Your output appears here after an operation.';
+    brutePreview.textContent = 'Use the Brute Force button to list all 25 candidate shifts.';
+    shiftInput.value = 3;
+    modeBadge.textContent = 'Idle';
+    confPercent.textContent = '—';
+  }
+
+  // element bindings
+  document.getElementById('encryptBtn').addEventListener('click', doEncrypt);
+  document.getElementById('decryptBtn').addEventListener('click', doDecrypt);
+  document.getElementById('bruteBtn').addEventListener('click', doBrute);
+  document.getElementById('copyBtn').addEventListener('click', copyOut);
+  document.getElementById('downloadBtn').addEventListener('click', downloadTxt);
+  document.getElementById('autoDetect').addEventListener('click', autoDetect);
+  document.getElementById('copyInput').addEventListener('click', copyInput);
+  document.getElementById('clearBtn').addEventListener('click', clearAll);
+
+  // keyboard shortcuts:
+  // Ctrl+Enter => Encrypt
+  // Ctrl+Shift+Enter => Decrypt
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      if (e.shiftKey) doDecrypt(); else doEncrypt();
+    }
+  });
+
+  // friendly small autosave of input in localStorage
+  const STORAGE_KEY = 'caesar_pretty_input_v1';
+  input.addEventListener('input', () => localStorage.setItem(STORAGE_KEY, input.value));
+  window.addEventListener('load', () => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) input.value = saved;
+  });
+
+  // expose for console debugging (optional)
+  window.caesarTool = {caesarShift, doEncrypt, doDecrypt, doBrute: doBrute, autoDetect};
+
+})();
+</script>
+</body>
+</html>
